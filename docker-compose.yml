@@ -1,0 +1,55 @@
+
+services:
+  postgres-user:
+    image: postgres:16
+    container_name: flashsalex-user-db
+    environment:
+      POSTGRES_DB: user_db
+      POSTGRES_USER: user_service
+      POSTGRES_PASSWORD: user_password
+    ports:
+      - "5433:5432"
+    volumes:
+      - user_data:/var/lib/postgresql/data
+
+  postgres-flashsale:
+    image: postgres:16
+    container_name: flashsalex-flashsale-db
+    environment:
+      POSTGRES_DB: flashsale_db
+      POSTGRES_USER: flashsale_service
+      POSTGRES_PASSWORD: flashsale_password
+    ports:
+      - "5434:5432"
+    volumes:
+      - flashsale_data:/var/lib/postgresql/data
+
+  postgres-order:
+    image: postgres:16
+    container_name: flashsalex-order-db
+    environment:
+      POSTGRES_DB: order_db
+      POSTGRES_USER: order_service
+      POSTGRES_PASSWORD: order_password
+    ports:
+      - "5435:5432"
+    volumes:
+      - order_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+    container_name: flashsalex-redis
+    ports:
+      - "6379:6379"
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: flashsalex-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+volumes:
+  user_data:
+  flashsale_data:
+  order_data:
