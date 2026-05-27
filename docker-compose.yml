@@ -6,11 +6,16 @@ services:
     environment:
       POSTGRES_DB: user_db
       POSTGRES_USER: user_service
-      POSTGRES_PASSWORD: user_password
+      POSTGRES_PASSWORD: ${USER_DB_PASSWORD:-user_password}
     ports:
       - "5433:5432"
     volumes:
       - user_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user_service -d user_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
   postgres-flashsale:
     image: postgres:16
@@ -18,11 +23,16 @@ services:
     environment:
       POSTGRES_DB: flashsale_db
       POSTGRES_USER: flashsale_service
-      POSTGRES_PASSWORD: flashsale_password
+      POSTGRES_PASSWORD: ${FLASHSALE_DB_PASSWORD:-flashsale_password}
     ports:
       - "5434:5432"
     volumes:
       - flashsale_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U flashsale_service -d flashsale_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
   postgres-order:
     image: postgres:16
@@ -30,24 +40,42 @@ services:
     environment:
       POSTGRES_DB: order_db
       POSTGRES_USER: order_service
-      POSTGRES_PASSWORD: order_password
+      POSTGRES_PASSWORD: ${ORDER_DB_PASSWORD:-order_password}
     ports:
       - "5435:5432"
     volumes:
       - order_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U order_service -d order_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
   redis:
     image: redis:7
     container_name: flashsalex-redis
     ports:
       - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
   rabbitmq:
     image: rabbitmq:3-management
     container_name: flashsalex-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME:-flashsalex}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-flashsalex_password}
     ports:
       - "5672:5672"
       - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
 
 volumes:
   user_data:
