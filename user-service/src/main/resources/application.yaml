@@ -6,16 +6,21 @@ spring:
     name: user-service
 
   datasource:
-    url: jdbc:postgresql://localhost:5433/user_db
-    username: user_service
-    password: user_password
+    url: ${USER_DB_URL:jdbc:postgresql://localhost:5433/user_db}
+    username: ${USER_DB_USERNAME:user_service}
+    password: ${USER_DB_PASSWORD:user_password}
     driver-class-name: org.postgresql.Driver
 
   jpa:
     open-in-view: false
     hibernate:
-      ddl-auto: update
-    show-sql: true
+      ddl-auto: validate
+    show-sql: ${JPA_SHOW_SQL:false}
     properties:
       hibernate:
         format_sql: true
+        jdbc:
+          time_zone: UTC
+
+  flyway:
+    enabled: true
